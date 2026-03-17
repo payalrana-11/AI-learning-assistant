@@ -9,6 +9,13 @@ export const getDashboard = async (req, res, next) => {
     try {
         const userId = req.user._id;
 
+        // Get existing document IDs for this user
+        const existingDocIds = await Document.find({ userId }).distinct('_id');
+
+        // Clean up orphaned flashcards and quizzes whose document was deleted
+        await Flashcard.deleteMany({ userId, documentId: { $nin: existingDocIds } });
+        await Quiz.deleteMany({ userId, documentId: { $nin: existingDocIds } });
+
         // Get counts
         const totalDocuments = await Document.countDocuments({ userId });
         const totalFlashcardSets = await Flashcard.countDocuments({ userId });
@@ -32,6 +39,7 @@ export const getDashboard = async (req, res, next) => {
             userId,
             completedAt: { $ne: null }
         });
+
         const averageScore =
             quizzes.length > 0
                 ? Math.round(
@@ -46,13 +54,16 @@ export const getDashboard = async (req, res, next) => {
             .select('title fileName lastAccessed status');
 
         const recentQuizzes = await Quiz.find({ userId })
-            .sort({ createdAt: -1 })
+            .sort({ completedAt: -1 })
             .limit(5)
             .populate('documentId', 'title')
-            .select('title score totalQuestions completedAt');
+            .select('title score totalQuestions completedAt createdAt');
 
-        // Study streak (simplified – in production, track daily activity)
-        const studyStreak = Math.floor(Math.random() * 7) + 1; // Mock data
+        // Filter out quizzes whose document no longer exists
+        const validQuizzes = recentQuizzes.filter(quiz => quiz.documentId !== null);
+
+        // Study streak (simplified)
+        const studyStreak = Math.floor(Math.random() * 7) + 1;
 
         res.status(200).json({
             success: true,
@@ -70,7 +81,7 @@ export const getDashboard = async (req, res, next) => {
                 },
                 recentActivity: {
                     documents: recentDocuments,
-                    quizzes: recentQuizzes
+                    quizzes: validQuizzes
                 }
             }
         });

@@ -191,6 +191,38 @@ export const getDocument = async (req, res, next) => {
 // @desc    Delete document
 // @route   DELETE /api/documents/:id
 // @access  Private
+// export const deleteDocument = async (req, res, next) => {
+//   try {
+//     const document = await Document.findOne({
+//       _id: req.params.id,
+//       userId: req.user._id
+//     });
+
+//     if (!document) {
+//       return res.status(404).json({
+//         success: false,
+//         error: 'Document not found',
+//         statusCode: 404
+//       });
+//     }
+
+//     // Delete file from filesystem
+//     await fs.unlink(document.filePath).catch(() => {});
+
+//     // Delete document
+//     await document.deleteOne();
+
+//     res.status(200).json({
+//       success: true,
+//       message: 'Document deleted successfully'
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+// @desc    Delete document
+// @route   DELETE /api/documents/:id
+// @access  Private
 export const deleteDocument = async (req, res, next) => {
   try {
     const document = await Document.findOne({
@@ -208,6 +240,10 @@ export const deleteDocument = async (req, res, next) => {
 
     // Delete file from filesystem
     await fs.unlink(document.filePath).catch(() => {});
+
+    // Delete associated flashcards and quizzes
+    await Flashcard.deleteMany({ documentId: document._id });
+    await Quiz.deleteMany({ documentId: document._id });
 
     // Delete document
     await document.deleteOne();
