@@ -44,7 +44,7 @@ const DocumentDetailPage = () => {
       return filePath;
     }
 
-    const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000'; 
+    const baseUrl = process.env.REACT_APP_API_URL || "https://ai-learning-assistant-backend-0k79.onrender.com"; 
     return `${baseUrl}${filePath.startsWith('/') ? '' : '/'}${filePath}`;
   };
 
