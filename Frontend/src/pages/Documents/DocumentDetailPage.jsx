@@ -43,8 +43,8 @@ const DocumentDetailPage = () => {
     if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
       return filePath;
     }
-
-    const baseUrl = process.env.REACT_APP_API_URL || "https://ai-learning-assistant-backend-0k79.onrender.com"; 
+  // process.env.REACT_APP_API_URL ||
+    const baseUrl = "https://ai-learning-assistant-8lfu.onrender.com"; 
     return `${baseUrl}${filePath.startsWith('/') ? '' : '/'}${filePath}`;
   };
 
