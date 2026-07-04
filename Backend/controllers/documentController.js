@@ -32,7 +32,7 @@ export const uploadDocument = async (req, res, next) => {
         }
 
         // Construct the URL for the uploaded file
-       const baseUrl = `http://localhost:${process.env.PORT || 8000}`;
+       const baseUrl = "https://ai-learning-assistant-frontend-0zns.onrender.com";
         const fileUrl = `${baseUrl}/uploads/documents/${req.file.filename}`;
 
         // Create document record
